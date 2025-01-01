@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace DynamicPixels.Services.MultiPlayer.Realtime
+namespace DynamicPixels.UnityBaseFiles
 {
     public enum SyncType
     {
@@ -19,7 +19,7 @@ namespace DynamicPixels.Services.MultiPlayer.Realtime
         public SyncType type;
         public Vector3 vector;
     }
-    
+
     [Serializable]
     public class SyncingVariable
     {
@@ -27,7 +27,7 @@ namespace DynamicPixels.Services.MultiPlayer.Realtime
         public string fieldName;
         public string data;
     }
-    
+
     [Serializable]
     public class InstantiationModel
     {

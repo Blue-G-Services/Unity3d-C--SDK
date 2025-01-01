@@ -362,8 +362,7 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-bin
-obj
+
 .vscode
 /.vscode
 .idea

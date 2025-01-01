@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
+using DynamicPixels.UnityBaseFiles;
 using DynamicPixelsInitializer;
 using Newtonsoft.Json;
 using UnityEngine;
