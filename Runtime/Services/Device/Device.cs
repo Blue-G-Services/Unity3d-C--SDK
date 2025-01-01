@@ -1,5 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DynamicPixels.GameService.Models;
+using DynamicPixels.GameService.Models.outputs;
+using DynamicPixels.GameService.Services.Chat.Repositories;
 using DynamicPixels.GameService.Services.Device.Models;
 using DynamicPixels.GameService.Services.Device.Repositories;
 
@@ -24,10 +28,21 @@ namespace DynamicPixels.GameService.Services.Device
         /// <returns>
         /// A task representing the asynchronous operation, with a result containing a list of the user's devices.
         /// </returns>
-        public async Task<List<User.Models.Device>> FindMyDevices<T>(T input) where T : FindMyDeviceParams
+        public async Task<RowListResponse<User.Models.Device>> FindMyDevices<T>(T input, Action<List<User.Models.Device>> successfulCallback = null, Action<ErrorCode, string> failedCallback = null) where T : FindMyDeviceParams
         {
             var result = await _repository.FindMyDevices(input);
-            return result.List;
+            result.Result.IsSuccessful = result.Successful;
+            result.Result.ErrorCode = result.ErrorCode;
+            result.Result.ErrorMessage = result.ErrorMessage;
+            if (result.Successful)
+            {
+                successfulCallback?.Invoke(result.Result.List);
+            }
+            else
+            {
+                failedCallback?.Invoke(result.ErrorCode, result.ErrorMessage);
+            }
+            return result.Result;
         }
 
         /// <summary>
@@ -38,10 +53,24 @@ namespace DynamicPixels.GameService.Services.Device
         /// <returns>
         /// A task representing the asynchronous operation, with a result indicating whether the device was successfully revoked.
         /// </returns>
-        public async Task<bool> RevokeDevice<T>(T input) where T : RevokeDeviceParams
+        public async Task<RowResponse<bool>> RevokeDevice<T>(T input, Action<bool> successfulCallback = null, Action<ErrorCode, string> failedCallback = null) where T : RevokeDeviceParams
         {
             var result = await _repository.RevokeDevice(input);
-            return result.Affected > 0;
+            if (result.Successful)
+            {
+                successfulCallback?.Invoke(result.Result.Affected > 0);
+            }
+            else
+            {
+                failedCallback?.Invoke(result.ErrorCode, result.ErrorMessage);
+            }
+            return new RowResponse<bool>()
+            {
+                Row = result.Result.Affected > 0,
+                IsSuccessful = result.Successful,
+                ErrorCode = result.ErrorCode,
+                ErrorMessage = result.ErrorMessage,
+            };
         }
     }
 }

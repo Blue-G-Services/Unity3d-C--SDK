@@ -11,6 +11,7 @@ namespace DynamicPixels.GameService.Services.MultiPlayer.Match
         // get
         public static string GetMyMatchesUrl = $"{_baseUrl}";
         public static string LoadMatch(int matchId) => $"{_baseUrl}/{matchId}";
+        public static string LoadMatchByRoomId(int roomId) => $"{_baseUrl}/room/{roomId}";
         public static string LoadState(int matchId, string stateKey) => $"{_baseUrl}/{matchId}/states/{stateKey}";
 
         //put

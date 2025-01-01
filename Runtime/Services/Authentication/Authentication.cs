@@ -1,4 +1,7 @@
+using System;
 using System.Threading.Tasks;
+using DynamicPixels.GameService.Models;
+using DynamicPixels.GameService.Models.outputs;
 using DynamicPixels.GameService.Services.Authentication.Models;
 using DynamicPixels.GameService.Services.Authentication.Repositories;
 
@@ -45,11 +48,22 @@ namespace DynamicPixels.GameService.Services.Authentication
         /// <typeparam name="T">The type of the input parameters.</typeparam>
         /// <param name="input">The registration parameters.</param>
         /// <returns>A task representing the registration process, with a result containing the login response.</returns>
-        public async Task<LoginResponse> RegisterWithEmail<T>(T input) where T : RegisterWithEmailParams
+        public async Task<LoginResponse> RegisterWithEmail<T>(T input, Action<LoginResponse> successfulCallback = null, Action<ErrorCode, string> failedCallback = null) where T : RegisterWithEmailParams
         {
             var result = await _repository.RegisterWithEmail(input);
-            await SetupSdk(result.Token, result.User, result.Connection);
-            return result;
+            result.Result.IsSuccessful = result.Successful;
+            result.Result.ErrorCode = result.ErrorCode;
+            result.Result.ErrorMessage = result.ErrorMessage;
+            if (result.Successful)
+            {
+                successfulCallback?.Invoke(result.Result);
+            }
+            else
+            {
+                failedCallback?.Invoke(result.ErrorCode, result.ErrorMessage);
+            }
+            await SetupSdk(result.Result.Token, result.Result.User, result.Result.Connection);
+            return result.Result;
         }
 
         /// <summary>
@@ -58,11 +72,22 @@ namespace DynamicPixels.GameService.Services.Authentication
         /// <typeparam name="T">The type of the input parameters.</typeparam>
         /// <param name="input">The login parameters.</param>
         /// <returns>A task representing the login process, with a result containing the login response.</returns>
-        public async Task<LoginResponse> LoginWithEmail<T>(T input) where T : LoginWithEmailParams
+        public async Task<LoginResponse> LoginWithEmail<T>(T input, Action<LoginResponse> successfulCallback = null, Action<ErrorCode, string> failedCallback = null) where T : LoginWithEmailParams
         {
             var result = await _repository.LoginWithEmail(input);
-            await SetupSdk(result.Token, result.User, result.Connection);
-            return result;
+            result.Result.IsSuccessful = result.Successful;
+            result.Result.ErrorCode = result.ErrorCode;
+            result.Result.ErrorMessage = result.ErrorMessage;
+            if (result.Successful)
+            {
+                successfulCallback?.Invoke(result.Result);
+            }
+            else
+            {
+                failedCallback?.Invoke(result.ErrorCode, result.ErrorMessage);
+            }
+            await SetupSdk(result.Result.Token, result.Result.User, result.Result.Connection);
+            return result.Result;
         }
 
         /// <summary>
@@ -71,11 +96,22 @@ namespace DynamicPixels.GameService.Services.Authentication
         /// <typeparam name="T">The type of the input parameters.</typeparam>
         /// <param name="input">The Google login parameters.</param>
         /// <returns>A task representing the login process, with a result containing the login response.</returns>
-        public async Task<LoginResponse> LoginWithGoogle<T>(T input) where T : LoginWithGoogleParams
+        public async Task<LoginResponse> LoginWithGoogle<T>(T input, Action<LoginResponse> successfulCallback = null, Action<ErrorCode, string> failedCallback = null) where T : LoginWithGoogleParams
         {
             var result = await _repository.LoginWithGoogle(input);
-            await SetupSdk(result.Token, result.User, result.Connection);
-            return result;
+            result.Result.IsSuccessful = result.Successful;
+            result.Result.ErrorCode = result.ErrorCode;
+            result.Result.ErrorMessage = result.ErrorMessage;
+            if (result.Successful)
+            {
+                successfulCallback?.Invoke(result.Result);
+            }
+            else
+            {
+                failedCallback?.Invoke(result.ErrorCode, result.ErrorMessage);
+            }
+            await SetupSdk(result.Result.Token, result.Result.User, result.Result.Connection);
+            return result.Result;
         }
 
         /// <summary>
@@ -84,11 +120,22 @@ namespace DynamicPixels.GameService.Services.Authentication
         /// <typeparam name="T">The type of the input parameters.</typeparam>
         /// <param name="input">The guest login parameters.</param>
         /// <returns>A task representing the login process, with a result containing the login response.</returns>
-        public async Task<LoginResponse> LoginAsGuest<T>(T input) where T : LoginAsGuestParams
+        public async Task<LoginResponse> LoginAsGuest<T>(T input, Action<LoginResponse> successfulCallback = null, Action<ErrorCode, string> failedCallback = null) where T : LoginAsGuestParams
         {
             var result = await _repository.LoginAsGuest(input);
-            await SetupSdk(result.Token, result.User, result.Connection);
-            return result;
+            result.Result.IsSuccessful = result.Successful;
+            result.Result.ErrorCode = result.ErrorCode;
+            result.Result.ErrorMessage = result.ErrorMessage;
+            if (result.Successful)
+            {
+                successfulCallback?.Invoke(result.Result);
+            }
+            else
+            {
+                failedCallback?.Invoke(result.ErrorCode, result.ErrorMessage);
+            }
+            await SetupSdk(result.Result.Token, result.Result.User, result.Result.Connection);
+            return result.Result;
         }
 
         /// <summary>
@@ -97,11 +144,22 @@ namespace DynamicPixels.GameService.Services.Authentication
         /// <typeparam name="T">The type of the input parameters.</typeparam>
         /// <param name="input">The token login parameters.</param>
         /// <returns>A task representing the login process, with a result containing the login response.</returns>
-        public async Task<LoginResponse> LoginWithToken<T>(T input) where T : LoginWithTokenParams
+        public async Task<LoginResponse> LoginWithToken<T>(T input, Action<LoginResponse> successfulCallback = null, Action<ErrorCode, string> failedCallback = null) where T : LoginWithTokenParams
         {
             var result = await _repository.LoginWithToken(input);
+            result.Result.IsSuccessful = result.Successful;
+            result.Result.ErrorCode = result.ErrorCode;
+            result.Result.ErrorMessage = result.ErrorMessage;
+            if (result.Successful)
+            {
+                successfulCallback?.Invoke(result.Result);
+            }
+            else
+            {
+                failedCallback?.Invoke(result.ErrorCode, result.ErrorMessage);
+            }
             await SetupSdk(input.Token, new User.Models.User(), new ConnectionInfo());
-            return result;
+            return result.Result;
         }
 
         /// <summary>
@@ -110,10 +168,26 @@ namespace DynamicPixels.GameService.Services.Authentication
         /// <typeparam name="T">The type of the input parameters.</typeparam>
         /// <param name="input">The OTA readiness parameters.</param>
         /// <returns>A task representing the readiness check, with a result indicating if OTA is ready.</returns>
-        public async Task<bool> IsOtaReady<T>(T input) where T : IsOtaReadyParams
+        public async Task<RowResponse<bool>> IsOtaReady<T>(T input, Action<bool> successfulCallback = null, Action<ErrorCode, string> failedCallback = null) where T : IsOtaReadyParams
         {
             var result = await _repository.IsOtaReady(input);
-            return result;
+            
+            
+            if (result.Successful)
+            {
+                successfulCallback?.Invoke(result.Result);
+            }
+            else
+            {
+                failedCallback?.Invoke(result.ErrorCode, result.ErrorMessage);
+            }
+            return new RowResponse<bool>()
+            {
+                Row = result.Result,
+                IsSuccessful = result.Successful,
+                ErrorCode = result.ErrorCode,
+                ErrorMessage = result.ErrorMessage,
+            };
         }
 
         /// <summary>
@@ -124,10 +198,24 @@ namespace DynamicPixels.GameService.Services.Authentication
         /// <returns>
         /// A task representing the process, with a result indicating if the token was successfully sent.
         /// </returns>
-        public async Task<bool> SendOtaToken<T>(T input) where T : SendOtaTokenParams
+        public async Task<RowResponse<bool>> SendOtaToken<T>(T input, Action<bool> successfulCallback = null, Action<ErrorCode, string> failedCallback = null) where T : SendOtaTokenParams
         {
             var result = await _repository.SendOtaToken(input);
-            return result.Affected > 0;
+            if (result.Successful)
+            {
+                successfulCallback?.Invoke(result.Result.Affected > 0);
+            }
+            else
+            {
+                failedCallback?.Invoke(result.ErrorCode, result.ErrorMessage);
+            }
+            return new RowResponse<bool>()
+            {
+                Row = result.Result.Affected > 0,
+                IsSuccessful = result.Successful,
+                ErrorCode = result.ErrorCode,
+                ErrorMessage = result.ErrorMessage,
+            };
         }
 
         /// <summary>
@@ -136,11 +224,22 @@ namespace DynamicPixels.GameService.Services.Authentication
         /// <typeparam name="T">The type of the input parameters.</typeparam>
         /// <param name="input">The parameters for verifying the OTA token.</param>
         /// <returns>A task representing the verification process, with a result containing the login response.</returns>
-        public async Task<LoginResponse> VerifyOtaToken<T>(T input) where T : VerifyOtaTokenParams
+        public async Task<LoginResponse> VerifyOtaToken<T>(T input, Action<LoginResponse> successfulCallback = null, Action<ErrorCode, string> failedCallback = null) where T : VerifyOtaTokenParams
         {
             var result = await _repository.VerifyOtaToken(input);
-            await SetupSdk(result.Token, result.User, result.Connection);
-            return result;
+            result.Result.IsSuccessful = result.Successful;
+            result.Result.ErrorCode = result.ErrorCode;
+            result.Result.ErrorMessage = result.ErrorMessage;
+            if (result.Successful)
+            {
+                successfulCallback?.Invoke(result.Result);
+            }
+            else
+            {
+                failedCallback?.Invoke(result.ErrorCode, result.ErrorMessage);
+            }
+            await SetupSdk(result.Result.Token, result.Result.User, result.Result.Connection);
+            return result.Result;
         }
 
         /// <summary>

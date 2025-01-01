@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using DynamicPixels.GameService.Models.outputs;
 using DynamicPixels.GameService.Services.Synchronise.Repositories;
 
 namespace DynamicPixels.GameService.Services.Synchronise
@@ -13,7 +14,7 @@ namespace DynamicPixels.GameService.Services.Synchronise
             _repository = new SynchroniseRepository();
         }
 
-        public Task<DateTime> GetServerTime()
+        public Task<RowResponse<DateTime>> GetServerTime()
         {
             return _repository.GetServerTime();
         }

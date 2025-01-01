@@ -1,3 +1,4 @@
+using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -19,7 +20,10 @@ namespace DynamicPixels.GameService.Services.Storage.Repositories
         {
             throw new System.NotImplementedException();
         }
-        public async Task<FileMetaForUpload> UploadFile<T>(T input) where T : FileMetaForUpload
+
+        public async Task<RowResponse<FileMetaForUpload>> UploadFile<T>(T input,
+            Action<FileMetaForUpload> successfulCallback = null, Action<ErrorCode, string> failedCallback = null)
+            where T : FileMetaForUpload
         {
             var fileInfo = new
             {
@@ -31,12 +35,38 @@ namespace DynamicPixels.GameService.Services.Storage.Repositories
             string json = JsonConvert.SerializeObject(fileInfo, Formatting.Indented);
 
             var response = await WebRequest.Post<FileMetaForUpload>(UrlMap.GetUploadFileUrl, json);
-            await PutFile(response.row, input.FileContent, input.Name, input.ContentType);
+            if (response.Successful)
+            {
+                var result = await PutFile(response.Result.row, input.FileContent, input.Name, input.ContentType);
+                if (result.Successful)
+                {
+                    successfulCallback?.Invoke(result.Result);
+                }
+                else
+                {
+                    failedCallback?.Invoke(result.ErrorCode, result.ErrorMessage);
+                }
 
-            return response;
+                return new RowResponse<FileMetaForUpload>()
+                {
+                    IsSuccessful = result.Successful,
+                    ErrorCode = result.ErrorCode,
+                    ErrorMessage = result.ErrorMessage,
+                    Row = result.Result,
+                };
+            }
+            failedCallback?.Invoke(response.ErrorCode, response.ErrorMessage);
+            return new RowResponse<FileMetaForUpload>()
+            {
+                IsSuccessful = response.Successful,
+                ErrorCode = response.ErrorCode,
+                ErrorMessage = response.ErrorMessage,
+                Row = null,
+            };
         }
 
-        public async Task<FileMetaForUpload> PutFile(string url, byte[] fileContent, string Name, string contenttype)
+        public async Task<WebRequest.ResponseWrapper<FileMetaForUpload>> PutFile(string url, byte[] fileContent,
+            string Name, string contenttype)
         {
             using (var httpClient = new HttpClient())
             {
@@ -58,10 +88,12 @@ namespace DynamicPixels.GameService.Services.Storage.Repositories
                         var body = await response.Content.ReadAsStringAsync();
 
 
-
                         if (response.IsSuccessStatusCode)
                         {
-                            return JsonConvert.DeserializeObject<FileMetaForUpload>(body);
+                            return new WebRequest.ResponseWrapper<FileMetaForUpload>()
+                            {
+                                Result = JsonConvert.DeserializeObject<FileMetaForUpload>(body), Successful = true
+                            };
                         }
                         else
                         {
@@ -72,7 +104,10 @@ namespace DynamicPixels.GameService.Services.Storage.Repositories
                             var errorCode = ErrorMapper.GetErrorCode(errorResponse?.Message ?? string.Empty);
 
                             // Throw the DynamicPixelsException with the ErrorCode
-                            throw new DynamicPixelsException(errorCode, errorResponse?.Message);
+                            return new WebRequest.ResponseWrapper<FileMetaForUpload>()
+                            {
+                                Successful = false, ErrorCode = errorCode, ErrorMessage = errorResponse?.Message
+                            };
                         }
                     }
                 }
@@ -80,5 +115,3 @@ namespace DynamicPixels.GameService.Services.Storage.Repositories
         }
     }
 }
-
-

@@ -1,4 +1,6 @@
+using System;
 using System.Threading.Tasks;
+using DynamicPixels.GameService.Models;
 using DynamicPixels.GameService.Models.outputs;
 
 namespace DynamicPixels.GameService.Services.Storage
@@ -8,8 +10,9 @@ namespace DynamicPixels.GameService.Services.Storage
         // private IStorageRepositories _repository;
 
         void Download();
-        Task<FileMetadata> GetFileInfo();
-        public Task<FileMetaForUpload> UploadAsync<TInput>(TInput param) where TInput : FileMetaForUpload;
+        Task<RowResponse<FileMetadata>> GetFileInfo(Action<FileMetadata> successfulCallback = null,
+            Action<ErrorCode, string> failedCallback = null);
+        public Task<RowResponse<FileMetaForUpload>> UploadAsync<TInput>(TInput param, Action<FileMetaForUpload> successfulCallback = null, Action<ErrorCode, string> failedCallback = null) where TInput : FileMetaForUpload;
 
     }
 }

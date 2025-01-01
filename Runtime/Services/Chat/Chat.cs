@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DynamicPixels.GameService.Models;
@@ -161,22 +162,55 @@ namespace adapters.services.table.services
         }
         
         // https
-        public async Task<List<Conversation>> GetSubscribedConversations<T>(T param) where T : GetSubscribedConversationsParams
+        public async Task<List<Conversation>> GetSubscribedConversations<T>(T param, Action<List<Conversation>> successfulCallback = null, Action<ErrorCode, string> failedCallback = null) where T : GetSubscribedConversationsParams
         {
             var conversations = await this._repository.GetSubscribedConversations(param);
-            return conversations.List;
+            conversations.Result.IsSuccessful = conversations.Successful;
+            conversations.Result.ErrorCode = conversations.ErrorCode;
+            conversations.Result.ErrorMessage = conversations.ErrorMessage;
+            if (conversations.Successful)
+            {
+                successfulCallback?.Invoke(conversations.Result.List);
+            }
+            else
+            {
+                failedCallback?.Invoke(conversations.Result.ErrorCode, conversations.ErrorMessage);
+            }
+            return conversations.Result.List; 
         }
 
-        public async Task<List<Message>> GetConversationMessages<T>(T param) where T : GetConversationMessagesParams
+        public async Task<List<Message>> GetConversationMessages<T>(T param, Action<List<Message>> successfulCallback = null, Action<ErrorCode, string> failedCallback = null) where T : GetConversationMessagesParams
         {
             var messages = await this._repository.GetConversationMessages(param);
-            return messages.List;
+            messages.Result.IsSuccessful = messages.Successful;
+            messages.Result.ErrorCode = messages.ErrorCode;
+            messages.Result.ErrorMessage = messages.ErrorMessage;
+            if (messages.Successful)
+            {
+                successfulCallback?.Invoke(messages.Result.List);
+            }
+            else
+            {
+                failedCallback?.Invoke(messages.Result.ErrorCode, messages.ErrorMessage);
+            }
+            return messages.Result.List;
         }
 
-        public async Task<List<ConversationMember>> GetConversationMembers<T>(T param) where T : GetConversationMembersParams
+        public async Task<List<ConversationMember>> GetConversationMembers<T>(T param, Action<List<ConversationMember>> successfulCallback = null, Action<ErrorCode, string> failedCallback = null) where T : GetConversationMembersParams
         {
             var members = await this._repository.GetConversationMembers(param);
-            return members.List;
+            members.Result.IsSuccessful = members.Successful;
+            members.Result.ErrorCode = members.ErrorCode;
+            members.Result.ErrorMessage = members.ErrorMessage;
+            if (members.Successful)
+            {
+                successfulCallback?.Invoke(members.Result.List);
+            }
+            else
+            {
+                failedCallback?.Invoke(members.Result.ErrorCode, members.ErrorMessage);
+            }
+            return members.Result.List;
         }
 
     }

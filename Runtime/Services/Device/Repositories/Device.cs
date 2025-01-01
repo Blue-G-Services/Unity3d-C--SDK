@@ -7,12 +7,12 @@ namespace DynamicPixels.GameService.Services.Device.Repositories
 {
     public class DeviceRepository : IDeviceRepository
     {
-        public Task<RowListResponse<User.Models.Device>> FindMyDevices<T>(T input) where T : FindMyDeviceParams
+        public Task<WebRequest.ResponseWrapper<RowListResponse<User.Models.Device>>> FindMyDevices<T>(T input) where T : FindMyDeviceParams
         {
             return WebRequest.Get<RowListResponse<User.Models.Device>>(UrlMap.FindMyDevicesUrl);
         }
 
-        public Task<ActionResponse> RevokeDevice<T>(T input) where T : RevokeDeviceParams
+        public Task<WebRequest.ResponseWrapper<ActionResponse>> RevokeDevice<T>(T input) where T : RevokeDeviceParams
         {
             return WebRequest.Post<ActionResponse>(UrlMap.RevokeDeviceUrl(input.DeviceId), input.ToString());
         }

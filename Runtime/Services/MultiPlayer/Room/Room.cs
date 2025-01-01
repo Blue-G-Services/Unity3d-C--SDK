@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DynamicPixels.GameService.Models;
+using DynamicPixels.GameService.Models.outputs;
 using DynamicPixels.GameService.Utils.HttpClient;
 using DynamicPixels.GameService.Utils.WebsocketClient;
 using Newtonsoft.Json;
@@ -58,6 +59,8 @@ namespace DynamicPixels.GameService.Services.MultiPlayer.Room
         /// Event triggered when a message is received from the server.
         /// </summary>
         public event EventHandler<Request> OnMessageReceived;
+        public event EventHandler<RoomPlayer> OnUserOnline;
+        public event EventHandler<RoomPlayer> OnUserOffline;
 
 
         /// <summary>
@@ -77,11 +80,27 @@ namespace DynamicPixels.GameService.Services.MultiPlayer.Room
         /// Sends a PUT request to update the room's status on the server.
         /// </summary>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task Open()
+        public async Task<BaseResponse> Open(Action successfulCallback = null, Action<ErrorCode, string> failedCallback = null)
         {
             var sendingBody = new { State = nameof(RoomStatus.Open) };
-            await WebRequest.Put(UrlMap.UpdateStatusUrl(Id), JsonConvert.SerializeObject(sendingBody));
-            Status = RoomStatus.Open;
+            var result = await WebRequest.Put(UrlMap.UpdateStatusUrl(Id), JsonConvert.SerializeObject(sendingBody));
+            if (result.Successful)
+            {
+                Status = RoomStatus.Open;
+                successfulCallback?.Invoke();
+            }
+            else
+            {
+                failedCallback?.Invoke(result.ErrorCode, result.ErrorMessage);
+            }
+
+            return new BaseResponse()
+            {
+                ErrorCode = result.ErrorCode,
+                ErrorMessage = result.ErrorMessage,
+                IsSuccessful = result.Successful,
+            };
+
         }
 
         /// <summary>
@@ -89,11 +108,26 @@ namespace DynamicPixels.GameService.Services.MultiPlayer.Room
         /// Sends a PUT request to update the room's status on the server.
         /// </summary>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task Lock()
+        public async Task<BaseResponse> Lock(Action successfulCallback = null, Action<ErrorCode, string> failedCallback = null)
         {
             var sendingBody = new { State = nameof(RoomStatus.Lock) };
-            await WebRequest.Put(UrlMap.UpdateStatusUrl(Id), JsonConvert.SerializeObject(sendingBody));
-            Status = RoomStatus.Lock;
+            var result = await WebRequest.Put(UrlMap.UpdateStatusUrl(Id), JsonConvert.SerializeObject(sendingBody));
+            if (result.Successful)
+            {
+                Status = RoomStatus.Lock;
+                successfulCallback?.Invoke();
+            }
+            else
+            {
+                failedCallback?.Invoke(result.ErrorCode, result.ErrorMessage);
+            }
+
+            return new BaseResponse()
+            {
+                ErrorCode = result.ErrorCode,
+                ErrorMessage = result.ErrorMessage,
+                IsSuccessful = result.Successful,
+            };
         }
         
         /// <summary>
@@ -147,9 +181,23 @@ namespace DynamicPixels.GameService.Services.MultiPlayer.Room
         /// Sends a DELETE request to remove the user from the room on the server.
         /// </summary>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public Task Leave()
+        public async Task<BaseResponse> Leave(Action successfulCallback = null, Action<ErrorCode, string> failedCallback = null)
         {
-            return WebRequest.Delete(UrlMap.LeaveRoomUrl(Id));
+            var result = await WebRequest.Delete(UrlMap.LeaveRoomUrl(Id));
+            if (result.Successful)
+            {
+                successfulCallback?.Invoke();
+            }
+            else
+            {
+                failedCallback?.Invoke(result.ErrorCode, result.ErrorMessage);
+            }
+            return new BaseResponse()
+            {
+                ErrorCode = result.ErrorCode,
+                ErrorMessage = result.ErrorMessage,
+                IsSuccessful = result.Successful,
+            };
         }
         private void UserJoinedListenerAction(string message)
         {
@@ -180,6 +228,12 @@ namespace DynamicPixels.GameService.Services.MultiPlayer.Room
                     break;
                 case MessageType.UserLeftRoomMessage:
                     UserLeftListenerAction(packet.Payload);
+                    break;
+                case MessageType.UserOnlineMessage:
+                    OnUserOnline?.Invoke(this, JsonConvert.DeserializeObject<RoomPlayer>(packet.Payload));
+                    break;
+                case MessageType.UserOfflineMessage:
+                    OnUserOffline?.Invoke(this, JsonConvert.DeserializeObject<RoomPlayer>(packet.Payload));
                     break;
             }
         }
@@ -218,7 +272,9 @@ namespace DynamicPixels.GameService.Services.MultiPlayer.Room
         public const string RoomCreatedMessage = "room:created";
         public const string RoomDeletedMessage = "room:deleted";
         public const string UserJoinedToRoomMessage = "room:user-joined";
-        public const string UserLeftRoomMessage = "room:leave";
+        public const string UserLeftRoomMessage = "room:user-left";
+        public const string UserOnlineMessage = "user:online";
+        public const string UserOfflineMessage = "user:offline";
     }
     internal class SendToRoomInputDto
     {
