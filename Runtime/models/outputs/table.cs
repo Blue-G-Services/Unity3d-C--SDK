@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using DynamicPixels.GameService.Services.Table;
-using DynamicPixels.GameService.Utils.HttpClient;
 using Newtonsoft.Json;
-using UnityEditor.PackageManager;
 
 namespace DynamicPixels.GameService.Models.outputs
 {

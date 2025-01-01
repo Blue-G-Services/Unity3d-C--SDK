@@ -8,7 +8,6 @@ using DynamicPixels.GameService.Services.MultiPlayer.Room.Models;
 using DynamicPixels.GameService.Utils.HttpClient;
 using DynamicPixels.GameService.Utils.WebsocketClient;
 using Newtonsoft.Json;
-using Request = UnityEditor.PackageManager.Requests.Request;
 
 namespace DynamicPixels.GameService.Services.MultiPlayer.Room
 {
