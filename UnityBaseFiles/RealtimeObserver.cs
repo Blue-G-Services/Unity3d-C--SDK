@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DynamicPixels.GameService.Models;
 using DynamicPixels.GameService.Services.MultiPlayer.Room;
 using DynamicPixels.GameService.Services.User.Models;
+using DynamicPixels.UnityBaseFiles;
 using DynamicPixelsInitializer;
 using Newtonsoft.Json;
 using UnityEngine;

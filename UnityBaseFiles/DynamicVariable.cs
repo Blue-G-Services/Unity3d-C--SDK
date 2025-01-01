@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
+using DynamicPixels.UnityBaseFiles;
 using DynamicPixelsInitializer;
 using Newtonsoft.Json;
 using UnityEngine;
-using WebSocketSharp;
 
 namespace DynamicPixels.Services.MultiPlayer.Realtime
 {
@@ -34,7 +34,7 @@ namespace DynamicPixels.Services.MultiPlayer.Realtime
         /// </summary>
         private void OnValidate()
         {
-            if (guid.IsNullOrEmpty())
+            if (String.IsNullOrEmpty(guid))
             {
                 guid = Guid.NewGuid().ToString();
             }
@@ -54,7 +54,7 @@ namespace DynamicPixels.Services.MultiPlayer.Realtime
         /// </summary>
         public void Start()
         {
-            if (guid.IsNullOrEmpty())
+            if (String.IsNullOrEmpty(guid))
                 guid = Guid.NewGuid().ToString();
 
             FieldInfo[] fields =
@@ -112,7 +112,7 @@ namespace DynamicPixels.Services.MultiPlayer.Realtime
         /// <param name="guidToSet">The GUID to set. If empty, a new GUID is generated.</param>
         public void SetGuid(string guidToSet = "")
         {
-            guid = guidToSet.IsNullOrEmpty() ? Guid.NewGuid().ToString() : guidToSet;
+            guid = String.IsNullOrEmpty(guidToSet) ? Guid.NewGuid().ToString() : guidToSet;
         }
     }
 
