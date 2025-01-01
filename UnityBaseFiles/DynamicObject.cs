@@ -4,7 +4,6 @@ using DynamicPixels.UnityBaseFiles;
 using DynamicPixelsInitializer;
 using UnityEngine;
 using UnityEngine.Serialization;
-using WebSocketSharp;
 
 namespace DynamicPixels.Services.MultiPlayer.Realtime
 {
